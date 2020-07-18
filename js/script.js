@@ -1,216 +1,88 @@
-/**
- * Garantindo que o JavaScript será
- * processado somente após o total
- * carregamento do HTML
- */
-window.addEventListener('load', start);
+let lista = document.querySelector('.lista-adicionados');
+let divResultados = document.querySelector('.resultados-encontrados');
+let array = new Array();
+let searchArray = new Array();
 
-/**
- * Algumas variáveis globais, o que nem
- * sempre é uma boa prática
- */
-var globalIsEditing = false;
-var globalCurrentItem = null;
-var globalNames = ['Um', 'Dois', 'Três', 'Quatro'];
+let masculino = document.querySelector('#masc');
+let feminino = document.querySelector('#fem');
+let soma = document.querySelector('#sum_idade');
+let media = document.querySelector('#med_idade');
 
-/**
- * Função de inicialização, a ser executada
- * após o total carregamento da página
- */
-function start() {
-  preventFormSubmit();
-  activateInput();
-  renderNames();
+async function getNames() {
+  await fetch(
+    'https://randomuser.me/api/?seed=javascript&results=100&nat=BR&noinfo'
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      data.results.map((index) => {
+        array.push({
+          name: index.name.first + index.name.last,
+          picture: index.picture.thumbnail,
+          gender: index.gender,
+          age: index.dob.age,
+        });
+      });
+    });
 }
+getNames();
 
-function preventFormSubmit() {
-  function handleSubmit(event) {
-    event.preventDefault();
-  }
+let button = document.querySelector('#submit-name');
+let search = document.querySelector('#search');
 
-  var form = document.querySelector('form');
-  form.addEventListener('submit', handleSubmit);
-}
+button.addEventListener('click', function () {
+  console.log(array[0]);
+});
 
-function activateInput() {
-  function handleKeyup(event) {
-    /**
-     * Enquanto o usuário não digital Enter,
-     * nada será feito
-     */
-    if (event.key !== 'Enter') {
-      return;
+search.addEventListener('keyup', function (event) {
+  let soma_idades = 0;
+  let soma_masculino = 0;
+  let soma_feminino = 0;
+  let count1 = 0;
+  let contm = 0;
+  let contf = 0;
+
+  divResultados.innerHTML = '';
+  masculino.innerHTML = '';
+  feminino.innerHTML = '';
+  soma.innerHTML = '';
+  media.innerHTML = '';
+
+  array.map((registro) => {
+    if (registro.name.includes(event.target.value)) {
+      soma_idades += registro.age;
+      count1 += 1;
+
+      if (registro.gender == 'female') {
+        contf += 1;
+      } else {
+        contm += 1;
+      }
+
+      //registro.gender == 'female'
+      // ? (soma_feminino += registro.soma_feminino)
+      // : (soma_masculino += registro.soma_masculino);
+
+      let img = document.createElement('img');
+      let li = document.createElement('li');
+      let p = document.createElement('p');
+
+      masculino.innerHTML = contm;
+      feminino.innerHTML = contf;
+      soma.innerHTML = soma_idades;
+      media.innerHTML = (soma_idades / count1).toFixed(2);
+
+      img.src = registro.picture;
+      img.classList.add('img-profile');
+
+      img.classList.add('align');
+
+      p.innerHTML = registro.name + ', ' + registro.age;
+      li.append(img);
+      li.append(p);
+
+      divResultados.appendChild(li);
     }
+  });
 
-    /**
-     * Obtendo o valor digitado
-     * trim() elimina os espaços em
-     * branco no início e no final da string
-     */
-    var currentName = event.target.value.trim();
-
-    /**
-     * Verificando se o valor é passível
-     * de ser um nome
-     */
-    if (currentName === '') {
-      clear();
-      return;
-    }
-
-    /**
-     * Identificando se estamos inserindo ou
-     * editando algum nome
-     */
-    if (globalIsEditing) {
-      /**
-       * Para editar, trocamos o valor do
-       * item do vetor a partir de
-       * globalCurrentItem
-       */
-      globalNames[globalCurrentItem] = currentName;
-    } else {
-      /**
-       * Para inserir, basta invocar o
-       * método push
-       */
-      globalNames.push(currentName);
-    }
-
-    /**
-     * Limpando o formulário e
-     * renderizando os dados
-     */
-    clear();
-    renderNames();
-  }
-
-  var inputName = getInput();
-  inputName.addEventListener('keyup', handleKeyup);
-}
-
-/**
- * Em vários momentos isso foi
- * necessário. Portanto, é uma
- * boa prática isolar o comando
- * em uma função
- */
-function getInput() {
-  return document.querySelector('#inputName');
-}
-
-/**
- * Limpa os dados do formulário
- * e "reinicializa" a edição
- */
-function clear() {
-  var inputName = getInput();
-  inputName.value = '';
-  inputName.focus();
-  globalIsEditing = false;
-}
-
-/**
- * Função mais complexa,
- * que renderiza a lista
- * de nomes na tela a partir do
- * vetor globalNames
- */
-function renderNames() {
-  /**
-   * Função auxiliar para criar
-   * o botão de exclusão de cada
-   * item
-   */
-  function createDeleteButton(index) {
-    function removeItem() {
-      globalNames.splice(index, 1);
-      renderNames();
-    }
-
-    var button = document.createElement('button');
-    button.textContent = 'x';
-    button.classList.add('deleteButton');
-    button.addEventListener('click', removeItem);
-
-    return button;
-  }
-
-  /**
-   * Função auxiliar para criar o item
-   * de lista de forma clicável, com evento
-   * para tratar esse clique
-   */
-  function createNameSpan(currentName, currentItem) {
-    function editItem() {
-      var inputName = getInput();
-      globalIsEditing = true;
-      globalCurrentItem = currentItem;
-      inputName.value = currentName;
-      inputName.focus();
-    }
-
-    var span = document.createElement('span');
-    span.textContent = currentName;
-    span.classList.add('clickable');
-    span.addEventListener('click', editItem);
-
-    return span;
-  }
-
-  /**
-   * Obtendo a div onde os nomes serão
-   * inseridos
-   */
-  var divNames = document.querySelector('#names');
-
-  /**
-   * Criando o elemento <ul> de forma
-   * programática
-   */
-  var ul = document.createElement('ul');
-
-  /**
-   * Para cada nome, criamos um <li> correspondente,
-   * adicionando um botão para exclusão e tornando
-   * o item clicável para edição
-   */
-  for (var i = 0; i < globalNames.length; i++) {
-    /**
-     * "Apelidando" alguns dados
-     * para facilitar a lógica abaixo
-     */
-    var currentName = globalNames[i];
-    var currentItem = i;
-
-    var deleteButton = createDeleteButton(currentItem);
-    var nameSpan = createNameSpan(currentName, currentItem);
-
-    /**
-     * Criando o elemento <li> e inserindo
-     * o botão e o texto
-     */
-    var li = document.createElement('li');
-    li.appendChild(deleteButton);
-    li.appendChild(nameSpan);
-
-    /**
-     * Por fim, inserimos o <li>
-     * em <ul> de forma
-     * programática
-     */
-    ul.appendChild(li);
-  }
-
-  /**
-   * Limpamos os dados atuais
-   * da <div>
-   */
-  divNames.innerHTML = '';
-
-  /**
-   * Inserimos a <ul>
-   * recém-criada
-   */
-  divNames.appendChild(ul);
-}
+  console.log(searchArray);
+});

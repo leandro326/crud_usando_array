@@ -3,25 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRUD</title>
+    <title>Pesquisa de usuários</title>
 
     <link rel="stylesheet" href="./css/styles.css" />
   </head>
   <body>
-    <h1>Cadastro de nomes</h1>
-    <form>
-      <label>
-        Nome:
-        <input
-          id="inputName"
-          type="text"
-          placeholder="Informe um nome aqui..."
-        />
-      </label>
-    </form>
+    <div class="quadro-principal">
+      <h1>Pesquisa de usuários</h1>
+      <input
+        type="text"
+        placeholder="Digite o nome a ser adicionado"
+        id="search"
+      />
+      <button type="button" id="submit-name">Buscar</button>
 
-    <h2>Nomes cadastrados até o momento</h2>
-    <div id="names"></div>
+      <div class="line-form"></div>
+    </div>
+
+    <div class="row lista-adicionados">
+      <div class="col-6 display-results-search">
+        <h1 class="letra-title">
+          <span id="qtd-usuario"></span>
+          Resultados
+        </h1>
+
+        <div class="resultados-encontrados"></div>
+      </div>
+      <div class="col-6 display-results-search">
+        <h1 class="letra-title">
+          Estatística
+        </h1>
+        <p>Sexo masculino: <span id="masc"></span></p>
+        <p>Sexo feminino: <span id="fem"></span></p>
+        <p>Soma das idades: <span id="sum_idade"></span></p>
+        <p>Média das idades: <span id="med_idade"></span></p>
+      </div>
+    </div>
 
     <script src="./js/script.js"></script>
   </body>
